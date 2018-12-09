@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import pandas as pd
 import numpy as np
 import csv as csv
@@ -37,6 +38,7 @@ x_test = test_data[:, 1:]
 id = y_test.values[:,0]
 y_test = y_test.values[:,1]
 
+#決定木
 from sklearn import tree
 from sklearn.grid_search import GridSearchCV
 
