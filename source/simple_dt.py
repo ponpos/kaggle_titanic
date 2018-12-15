@@ -38,15 +38,15 @@ x_test = test_data[:, 1:]
 id = y_test.values[:,0]
 y_test = y_test.values[:,1]
 
-#決定木
-from sklearn import tree
-from sklearn.grid_search import GridSearchCV
+#ランダムフォレスト
+from sklearn.ensemble import RandomForestClassifier 
+#from sklearn.grid_search import GridSearchCV
 
-tuned_parameters = {'max_depth':  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                    'max_leaf_nodes':  [2,4,6,8,10]
-                   }
+#tuned_parameters = {'max_depth':  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+#                    'max_leaf_nodes':  [2,4,6,8,10]
+#                   }
  
-clf = GridSearchCV(tree.DecisionTreeClassifier(random_state=0,splitter='best'), tuned_parameters, scoring="accuracy",cv=5, n_jobs=1)
+clf = RandomForestClassifier(n_estimators=200, max_leaf_nodes=16, n_jobs=-1)
 clf = clf.fit(x_train, y_train)
 
 y_pred = clf.predict(x_test).astype(int)
