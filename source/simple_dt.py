@@ -19,14 +19,21 @@ test["Age"].fillna(train.Age.mean(),inplace=True)
 test["Embarked"].fillna(train.Embarked.mean(),inplace=True)
 test["Fare"].fillna(train.Fare.mean(), inplace=True)
 
+#FamilySizeを追加
+test["FamilySize"]=test["SibSp"]+test["Parch"]+1
+train["FamilySize"]=train["SibSp"]+train["Parch"]+1
+
 train.drop("Name",axis=1,inplace=True)
 train.drop("Cabin",axis=1,inplace=True)
 train.drop("Ticket",axis=1,inplace=True)
+train.drop("SibSp",axis=1,inplace=True)
+train.drop("Parch",axis=1,inplace=True)
 
 test.drop("Name",axis=1,inplace=True)
 test.drop("Cabin",axis=1,inplace=True)
 test.drop("Ticket",axis=1,inplace=True)
-
+test.drop("SibSp",axis=1,inplace=True)
+test.drop("Parch",axis=1,inplace=True)
 
 train_data = train.values
 x_train = train_data[:, 2:]
