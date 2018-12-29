@@ -19,6 +19,12 @@ test["Age"].fillna(train.Age.mean(),inplace=True)
 test["Embarked"].fillna(train.Embarked.mean(),inplace=True)
 test["Fare"].fillna(train.Fare.mean(), inplace=True)
 
+#家族の総人数を追加
+train["FamilySize"]=train["SibSp"]+train["Parch"]+1
+test["FamilySize"]=test["SibSp"]+test["Parch"]+1
+
+
+
 train.drop("Name",axis=1,inplace=True)
 train.drop("Cabin",axis=1,inplace=True)
 train.drop("Ticket",axis=1,inplace=True)
