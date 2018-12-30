@@ -23,22 +23,46 @@ test["Fare"].fillna(train.Fare.mean(), inplace=True)
 train["FamilySize"]=train["SibSp"]+train["Parch"]+1
 test["FamilySize"]=test["SibSp"]+test["Parch"]+1
 
+#Nameから敬称を抜き取る
+def name_classifier(name_df):    
+    name_class_df = pd.DataFrame(columns=['miss','mrs','master','mr'])
+    
+    for name in name_df:        
+        if 'Miss.' in name:
+            df = pd.DataFrame([[1.0,0.0,0.0,0.0]],columns=['miss','mrs','master','mr'])
+        elif 'Mrs.' in name:
+            df = pd.DataFrame([[0.0,1.0,0.0,0.0]],columns=['miss','mrs','master','mr'])
+        elif 'Master.' in name:
+            df = pd.DataFrame([[0.0,0.0,1.0,0.0]],columns=['miss','mrs','master','mr'])
+        elif 'Mr.' in name:
+            df = pd.DataFrame([[0.0,0.0,0.0,1.0]],columns=['miss','mrs','master','mr'])
+        else :
+            df = pd.DataFrame([[0.0,0.0,0.0,0.0]],columns=['miss','mrs','master','mr'])
+        name_class_df = name_class_df.append(df,ignore_index=True)        
+    return name_class_df
 
+testes = name_classifier('Mr.')
+
+train_nameclass = name_classifier(train["Name"])
+train=pd.concat([train,train_nameclass],axis=1)
+
+test_nameclass = name_classifier(test["Name"])
+test=pd.concat([test,test_nameclass],axis=1)
 
 train.drop("Name",axis=1,inplace=True)
 train.drop("Cabin",axis=1,inplace=True)
 train.drop("Ticket",axis=1,inplace=True)
-train.drop("SibSp",axis=1,inplace=True)
-train.drop("Parch",axis=1,inplace=True)
 
 test.drop("Name",axis=1,inplace=True)
 test.drop("Cabin",axis=1,inplace=True)
 test.drop("Ticket",axis=1,inplace=True)
-test.drop("SibSp",axis=1,inplace=True)
-test.drop("Parch",axis=1,inplace=True)
+
+print("check1")
 
 train_data = train.values
+print("check2")
 x_train = train_data[:, 2:]
+print("check3")
 y_train  = train_data[:, 1]
 
 test_data = test.values
