@@ -12,10 +12,10 @@ test = pd.read_csv('test.csv').replace("male",0).replace("female",1).replace("S"
 y_test = pd.read_csv('gender_submission.csv')
 
 
-train["Age"].fillna(train.Age.mean(),inplace=True)
+#train["Age"].fillna(train.Age.mean(),inplace=True)
 train["Embarked"].fillna(train.Embarked.mean(),inplace=True)
 
-test["Age"].fillna(train.Age.mean(),inplace=True)
+#test["Age"].fillna(train.Age.mean(),inplace=True)
 test["Embarked"].fillna(train.Embarked.mean(),inplace=True)
 test["Fare"].fillna(train.Fare.mean(), inplace=True)
 
@@ -41,13 +41,30 @@ def name_classifier(name_df):
         name_class_df = name_class_df.append(df,ignore_index=True)        
     return name_class_df
 
-testes = name_classifier('Mr.')
-
 train_nameclass = name_classifier(train["Name"])
 train=pd.concat([train,train_nameclass],axis=1)
 
 test_nameclass = name_classifier(test["Name"])
 test=pd.concat([test,test_nameclass],axis=1)
+
+#AgeがNanの場合は各敬称の平均値を入れる
+train_age = train.dropna(subset=['Age'])
+miss_mean = train[train.miss==1.0].Age.mean()
+mrs_mean =  train[train.mrs==1.0].Age.mean()
+mr_mean =  train[train.mr==1.0].Age.mean()
+master_mean =  train[train.master==1.0].Age.mean()
+
+train.loc[(train.Age!=train.Age)&(train.miss==1.0),'Age']=miss_mean
+train.loc[(train.Age!=train.Age)&(train.mrs==1.0),'Age']=mrs_mean
+train.loc[(train.Age!=train.Age)&(train.mr==1.0),'Age']=mr_mean
+train.loc[(train.Age!=train.Age)&(train.master==1.0),'Age']=master_mean
+train.loc[(train.Age!=train.Age),'Age']=train.Age.mean()
+
+test.loc[(test.Age!=test.Age)&(test.miss==1.0),'Age']=miss_mean
+test.loc[(test.Age!=test.Age)&(test.mrs==1.0),'Age']=mrs_mean
+test.loc[(test.Age!=test.Age)&(test.mr==1.0),'Age']=mr_mean
+test.loc[(test.Age!=test.Age)&(test.master==1.0),'Age']=master_mean
+test.loc[(test.Age!=test.Age),'Age']=train.Age.mean()
 
 train.drop("Name",axis=1,inplace=True)
 train.drop("Cabin",axis=1,inplace=True)
@@ -57,12 +74,8 @@ test.drop("Name",axis=1,inplace=True)
 test.drop("Cabin",axis=1,inplace=True)
 test.drop("Ticket",axis=1,inplace=True)
 
-print("check1")
-
 train_data = train.values
-print("check2")
 x_train = train_data[:, 2:]
-print("check3")
 y_train  = train_data[:, 1]
 
 test_data = test.values
@@ -84,11 +97,13 @@ parameters = {
     "random_state":[3],
 }
 #モデルを作成
+print("GridSearching...")
 clf = GridSearchCV(RandomForestClassifier(), parameters,cv=5,n_jobs=-1)
 clf_fit=clf.fit(x_train,y_train)
 #最も良い学習モデルで学習
 predictor=clf_fit.best_estimator_
 
+print("predicting...")
 y_pred = predictor.predict(x_test).astype(int)
 with open("titanic_submit.csv", "w", newline='') as f:
     file = csv.writer(f)
