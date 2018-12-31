@@ -86,19 +86,24 @@ y_test = y_test.values[:,1]
 
 
 #ランダムフォレスト
-from sklearn.ensemble import RandomForestClassifier 
-from sklearn.grid_search import GridSearchCV
+from sklearn import svm
+from sklearn.model_selection import GridSearchCV
 
-parameters = {
-    "n_estimators":[i for i in range(10,100,10)],
-    "criterion":["gini","entropy"],
-    "max_depth":[i for i in range(1,6,1)],
-     'min_samples_split': [2, 4, 10,12,16],
-    "random_state":[3],
-}
+'''
+訓練データとしてtrainXとtrainYを用意しておく
+'''
+
+# SVM
+svc = svm.SVC()
+tuned_parameters = [
+    {'C': [1, 10, 100, 1000], 'kernel': ['linear']},
+    {'C': [1, 10, 100, 1000], 'kernel': ['rbf'], 'gamma': [0.001, 0.0001]},
+    {'C': [1, 10, 100, 1000], 'kernel': ['poly'], 'degree': [2, 3, 4], 'gamma': [0.001, 0.0001]},
+    {'C': [1, 10, 100, 1000], 'kernel': ['sigmoid'], 'gamma': [0.001, 0.0001]}
+    ]
+clf = GridSearchCV(svc, tuned_parameters, cv=10, scoring='accuracy', n_jobs=1)
 #モデルを作成
 print("GridSearching...")
-clf = GridSearchCV(RandomForestClassifier(), parameters,cv=5,n_jobs=-1)
 clf_fit=clf.fit(x_train,y_train)
 #最も良い学習モデルで学習
 predictor=clf_fit.best_estimator_
